@@ -1,0 +1,23 @@
+{% extends "template.html" %}
+{% block profile_edit %}
+<h1>Edit profile</h1>
+{%if data%}
+    {%if not data.status%}
+       <div class="alert alert-danger">{{data.message}}</div>
+    {% else %}
+        <div class="alert alert-success">{{data.message}}</div>
+    {% endif %}
+{% endif %}
+<form class="form-groupr" name="" method="post">
+    Username:<br>
+    <input class="form-control" type="text" value="{{user['user'].user_name}}" disabled><br>
+    Name:<br>
+    <input class="form-control" type="text" name="name" value="{{user['user'].name}}"><br>
+    Bio:<br>
+    <textarea class="form-control" name="bio">{{user['user'].bio}}</textarea><br>
+    <div class="text-right">
+
+        <input class="btn btn-info text-right" type="submit" value="Update">
+    </div>
+</form>
+{% endblock %}

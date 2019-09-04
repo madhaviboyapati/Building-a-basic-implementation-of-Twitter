@@ -1,0 +1,95 @@
+{% extends "template.html" %}
+
+
+{% block nav_second %}
+<div class="nav-scroller bg-white shadow-sm">
+    <nav class="nav nav-underline">
+        <a class="nav-link active" href="/profile">Profile</a>
+        <a class="nav-link" href="#">
+            Tweets
+            <span class="badge badge-pill bg-light align-text-bottom">{{profile_info.tweet_count}}</span>
+        </a>
+        <a class="nav-link" href="#">
+            Followers
+            <span class="badge badge-pill bg-light align-text-bottom">{{followers}}</span>
+        </a>
+        <a class="nav-link" href="#">
+            Following
+            <span class="badge badge-pill bg-light align-text-bottom">{{following}}</span>
+        </a>
+
+    </nav>
+</div>
+
+{% endblock %}
+
+{% block user_header %}
+    <div class="d-flex align-items-center p-3 my-3 text-white-50 bg-purple rounded shadow-sm">
+        <img class="mr-3" src="/docs/4.3/assets/brand/bootstrap-outline.svg" alt="" width="48" height="48">
+        <div class="lh-100">
+            <h6 class="mb-0 text-white lh-100">@{{profile_info.user_name}}</h6>
+            <small>
+                {{profile_info.bio}}
+                <form name="" class="mt-3" method="post" action="/show-profile?user={{username}}">
+                    <input class="btn btn-info" type="submit" name="follow" value="{{status.follow_text}}">
+                </form>
+            </small>
+        </div>
+    </div>
+
+{%if data%}
+<div class="alert alert-success">{{data.message}}</div>
+{%endif%}
+
+{% endblock %}
+
+<!--@{{profile_info.user_name}}<br>-->
+<!--My Bio: <br>{{profile_info.bio}}<br/><br>-->
+
+<!--<form name="" method="post" action="/show-profile?user={{username}}">-->
+<!--<input type="submit" name="follow" value="{{status.follow_text}}">-->
+<!--</form>-->
+
+<!--Tweets:{{profile_info.tweet_count}} Followers: {{followers}} Following: {{following}}<br>-->
+
+<!--{%if data%}-->
+<!--{{data.message}}-->
+<!--{%endif%}-->
+
+<!--<br><br>-->
+
+{% block view_tweets %}
+
+    <div class="my-3 p-3 bg-white rounded shadow-sm">
+        <h6 class="border-bottom border-gray pb-2 mb-0">Recent tweets</h6>
+        {%for val in tweets.data%}
+        <div class="media text-muted pt-lg-5">
+            <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
+                <strong class="d-block text-gray-dark"><a
+                        href="/show-profile?user={{val.user_name}}">@{{val.user_name}} </a>at {{AccountFunction.format_time(val.date_added)}}</strong>
+                {{val.tweet}}
+            </p>
+        </div>
+        {% if val.tweet_image %}
+        <div>
+            <img src="{{images.get_serving_url(val.tweet_image, size=150, crop=true, secure_url=False)}}"
+                 class="text-left"/>
+        </div>
+
+        {% endif %}
+        {%if user.user.user_name == val.user_name%}
+        <a href="/profile?edit-tweet={{val.key.id().split('/')[1]}}" class="btn btn-info mr-2 mt-3">Edit</a>
+        <a href="/profile?delete-tweet={{val.key.id().split('/')[1]}}" class="btn btn-danger mt-3">Delete</a>
+        {%endif%}
+        {%endfor%}
+    </div>
+
+{% endblock %}
+
+<!--<table style="width:50%" border="1">-->
+    <!--{%for val in tweets.data%}-->
+  <!--<tr>-->
+    <!--<td> @{{val.user_name}} {{val.tweet}}</td>-->
+  <!--</tr>-->
+    <!--{%endfor%}-->
+<!--</table>-->

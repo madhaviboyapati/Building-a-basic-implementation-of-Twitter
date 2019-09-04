@@ -1,0 +1,252 @@
+{% extends "template.html" %}
+
+<!--Welcome @{{user.user.user_name}}<br>-->
+
+<!--My Bio: <br>{{user.user.bio}}<br>-->
+
+<!--Tweets: {{user.user.tweet_count}} Following: {{following}} Followers: {{follow}}<br><br>-->
+
+
+<!--<form name="" action="/profile" method="post">-->
+<!--<input type="text" name="username">-->
+<!--<input type="submit" name="button" value="Search User">-->
+<!--</form>-->
+
+<!--<form name="" action="/profile" method="post">-->
+<!--<input type="text" name="text">-->
+<!--<input type="submit" name="button" value="Search Tweet">-->
+<!--</form>-->
+{% block nav_second %}
+<div class="nav-scroller bg-white shadow-sm">
+    <nav class="nav nav-underline">
+        <a class="nav-link active" href="/profile">Profile</a>
+        <a class="nav-link" href="#">
+            Tweets
+            <span class="badge badge-pill bg-light align-text-bottom">{{user.user.tweet_count}}</span>
+        </a>
+        <a class="nav-link" href="#">
+            Followers
+            <span class="badge badge-pill bg-light align-text-bottom">{{follow}}</span>
+        </a>
+        <a class="nav-link" href="#">
+            Following
+            <span class="badge badge-pill bg-light align-text-bottom">{{following}}</span>
+        </a>
+
+    </nav>
+</div>
+
+{% endblock %}
+
+{% block user_header %}
+    <div class="d-flex align-items-center p-3 my-3 text-white-50 bg-purple rounded shadow-sm">
+        <img class="mr-3" src="/docs/4.3/assets/brand/bootstrap-outline.svg" alt="" width="48" height="48">
+        <div class="lh-100">
+            <h6 class="mb-0 text-white lh-100">@{{user.user.user_name}}</h6>
+            <small>{{user.user.bio}}</small>
+        </div>
+    </div>
+{% endblock %}
+
+{% block tweet_delete %}
+    {%if delete_tweet%}
+        <div class="alert alert-success">Tweet deleted successfully</div>
+    {%endif%}
+{% endblock %}
+{% block new_tweet %}
+
+{%if  not search_tweet and not edit_tweet and not user_search%}
+    {%if save_tweet%}
+        {%if not save_tweet.status%}
+            <div class="alert alert-danger">{{save_tweet.message}}</div>
+        {%else%}
+            <div class="alert alert-success">{{save_tweet.message}}</div>
+        {%endif%}
+    {%endif%}
+    <form class="form-group" name="" action="{{upload_url}}" method="post" enctype="multipart/form-data">
+        <textarea class="form-control mb-3" name="text"></textarea>
+        <input class="btn btn-info text-right" type="submit" name="button" value="Tweet">
+        <!--<input type="file" name="myFile">-->
+        <div class="custom-file col-md-3">
+            <input type="file" name="myFile" class="custom-file-input" id="validatedCustomFile">
+            <label class="custom-file-label" for="validatedCustomFile">Choose file...</label>
+        </div>
+    </form>
+    {%endif%}
+{% endblock %}
+
+<!--<form action="/profile" method="post">-->
+<!--<input type="submit" name="button" value="Delete">-->
+<!--</form>-->
+<!--<form action="/profile" method="post">-->
+<!--<input type="submit" name="button" value="Edit">-->
+<!--</form>-->
+
+{% block search_user %}
+{%if not edit_tweet and user_search%}
+<div class="my-3 p-3 bg-white rounded shadow-sm">
+    <h6 class="border-bottom border-gray pb-2 mb-0">Search User</h6>
+    {%if not user_search.status%}
+    <div class="alert alert-danger">{{user_search.message}}</div>
+    {%endif%}
+    {%if user_search.records%}
+    <div class="media text-muted pt-3">
+        <svg class="bd-placeholder-img mr-2 rounded" width="32" height="32" xmlns="http://www.w3.org/2000/svg"
+             preserveAspectRatio="xMidYMid slice" focusable="false" role="img" aria-label="Placeholder: 32x32"><title>
+            Placeholder</title>
+            <rect width="100%" height="100%" fill="#007bff"/>
+            <text x="50%" y="50%" fill="#007bff" dy=".3em">32x32</text>
+        </svg>
+        <div class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
+            <div class="d-flex justify-content-between align-items-center w-100">
+                <strong class="text-gray-dark">{{user_search.records.name}}</strong>
+                <a href="/show-profile?user={{user_search.records.user_name}}">View</a>
+            </div>
+            <span class="d-block"><a href="/show-profile?user={{user_search.records.user_name}}">@{{user_search.records.user_name}}</a></span>
+        </div>
+    </div>
+    {%endif%}
+</div>
+
+<!--<h1>Search User</h1>-->
+<!--{{user_search.message}}-->
+<!--{%if user_search.records%}-->
+<!--<a href="/show-profile?user={{user_search.records.user_name}}">@{{user_search.records.user_name}}</a>-->
+<!--{%endif%}-->
+
+
+{%endif%}
+{% endblock %}
+
+
+{% block view_tweets %}
+    {%if not search_tweet and not edit_tweet and not user_search and tweet_data%}
+    <div class="my-3 p-3 bg-white rounded shadow-sm">
+        <h6 class="border-bottom border-gray pb-2 mb-0">Recent tweets</h6>
+        {%for val in tweet_data%}
+        <div class="media text-muted pt-lg-5">
+            <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
+                <strong class="d-block text-gray-dark"><a
+                        href="/show-profile?user={{val.user_name}}">@{{val.user_name}} </a>at {{AccountFunction.format_time(val.date_added)}}</strong>
+                {{val.tweet}}
+            </p>
+        </div>
+        {% if val.tweet_image %}
+        <div>
+            <img src="{{images.get_serving_url(val.tweet_image, size=150, crop=true, secure_url=False)}}"
+                 class="text-left"/>
+        </div>
+
+        {% endif %}
+        {%if user.user.user_name == val.user_name%}
+        <a href="/profile?edit-tweet={{val.key.id().split('/')[1]}}" class="btn btn-info mr-2 mt-3">Edit</a>
+        <a href="/profile?delete-tweet={{val.key.id().split('/')[1]}}" class="btn btn-danger mt-3">Delete</a>
+        {%endif%}
+        {%endfor%}
+    </div>
+
+
+    <!--<table style="width:50%" border="1">-->
+    <!--{%for val in tweet_data%}-->
+    <!--<tr >-->
+    <!--<td>-->
+    <!--{{val.date_added}}<br>-->
+    <!--<a href="/show-profile?user={{val.user_name}}">@{{val.user_name}} </a><br>-->
+    <!--{{val.tweet}}<br>-->
+    <!--{% if val.tweet_image %}-->
+    <!--<img src="{{images.get_serving_url(val.tweet_image, size=150, crop=False, secure_url=False)}}" class="profile-image"/>-->
+    <!--{% endif %}<br>-->
+    <!--{%if user.user.user_name == val.user_name%}-->
+    <!--<a href="/profile?edit-tweet={{val.key.id().split('/')[1]}}">Edit</a>-->
+    <!--<a href="/profile?delete-tweet={{val.key.id().split('/')[1]}}">Delete</a>-->
+    <!--{%endif%}-->
+    <!--</td>-->
+    <!--</tr>-->
+    <!--{%endfor%}-->
+    <!--</table>-->
+    {%endif%}
+{% endblock %}
+
+
+{% block tweet_edit %}
+    {%if edit_tweet%}
+        <h1>Edit Tweet</h1>
+
+        {%if update_tweet%}
+            {%if not update_tweet.status%}
+
+            <div class="alert alert-danger">{{update_tweet.message}}</div>
+            {%else%}
+            <div class="alert alert-success">{{update_tweet.message}}</div>
+            {%endif%}
+        {%endif%}
+
+        <form class="form-group text-right" name="" action="/profile?edit-tweet={{single_tweet.key.id().split('/')[1]}}" method="post">
+            <textarea class="form-control mb-3" name="text">{{single_tweet.tweet}}</textarea>
+            <input class="btn btn-info" type="submit" name="button" value="Update Tweet">
+        </form>
+    {%endif%}
+{% endblock %}
+
+{% block tweet_search %}
+    {%if search_tweet%}
+    <div class="my-3 p-3 bg-white rounded shadow-sm">
+        <h6 class="border-bottom border-gray pb-2 mb-0">Search tweets</h6>
+        {% if not search_tweet.status %}
+        <div class="alert alert-danger">{{search_tweet.message}}</div>
+        {%endif%}
+
+        {%for val in search_tweet.data%}
+        <div class="media text-muted pt-lg-5">
+            <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
+                <strong class="d-block text-gray-dark"><a
+                        href="/show-profile?user={{val.user_name}}">@{{val.user_name}} </a>at {{AccountFunction.format_time(val.date_added)}}</strong>
+                {{val.tweet}}
+            </p>
+        </div>
+        {% if val.tweet_image %}
+        <div>
+            <img src="{{images.get_serving_url(val.tweet_image, size=150, crop=true, secure_url=False)}}"
+                 class="text-left"/>
+        </div>
+
+        {% endif %}
+        {%if user.user.user_name == val.user_name%}
+        <a href="/profile?edit-tweet={{val.key.id().split('/')[1]}}" class="btn btn-info mr-2 mt-3">Edit</a>
+        <a href="/profile?delete-tweet={{val.key.id().split('/')[1]}}" class="btn btn-danger mt-3">Delete</a>
+        {%endif%}
+        {%endfor%}
+    </div>
+{%endif%}
+
+
+<!--{%if search_tweet%}-->
+<!--<h1>Search Tweet</h1>-->
+<!--{% if search_tweet.data%}-->
+<!--<table style="width:50%" border="1">-->
+    <!--{%for val in search_tweet.data%}-->
+    <!--<tr>-->
+        <!--<td>-->
+            <!--{{val.date_added}}<br>-->
+            <!--<a href="/show-profile?user={{val.user_name}}">@{{val.user_name}} </a><br>-->
+            <!--{{val.tweet}}<br>-->
+            <!--{% if val.tweet_image %}-->
+            <!--<img src="{{images.get_serving_url(val.tweet_image, size=150, crop=False, secure_url=False)}}"-->
+                 <!--class="profile-image"/>-->
+            <!--{% endif %}-->
+            <!--{%if user.user.user_name == val.user_name%}-->
+            <!--<a href="/profile?edit-tweet={{val.key.id().split('/')[1]}}">Edit</a>-->
+            <!--<a href="/profile?delete-tweet={{val.key.id().split('/')[1]}}">Delete</a>-->
+            <!--{%endif%}-->
+        <!--</td>-->
+    <!--</tr>-->
+    <!--{%endfor%}-->
+    <!--{{search_tweet.message}}-->
+<!--</table>-->
+
+<!--{%else%}-->
+<!--{{search_tweet.message}}-->
+<!--{%endif%}-->
+<!--{%endif%}-->
+{% endblock %}
+
